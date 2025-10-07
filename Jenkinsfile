@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     tools {
-        nodejs "NodeJS"  // Must match the name in Jenkins Global Tool Configuration
+        nodejs "nodejs"   // Must match the name in Jenkins Global Tool Configuration
     }
 
     options {
-        skipDefaultCheckout()  // Prevent skipping the build if no Git changes
+        skipDefaultCheckout()  // Ensures pipeline runs every time
     }
 
     stages {
@@ -17,7 +17,7 @@ pipeline {
                     branches: [[name: 'main']],
                     userRemoteConfigs: [[
                         url: 'https://github.com/prudhvivarma96/nodejs-jenkins-app.git',
-                        credentialsId: 'github-token'  // Replace with your Jenkins GitHub credential ID
+                        credentialsId: 'github-token'  // Your Jenkins GitHub credential ID
                     ]]
                 ])
             }
@@ -25,6 +25,7 @@ pipeline {
 
         stage('Stop Previous App') {
             steps {
+                // Kill any process using port 3000
                 sh '''
                     if lsof -i:3000 -t >/dev/null ; then
                         echo "Stopping previous Node process..."
@@ -50,6 +51,7 @@ pipeline {
 
         stage('Run App') {
             steps {
+                // Run Node app in background
                 sh 'nohup npm start > app.log 2>&1 &'
             }
         }
